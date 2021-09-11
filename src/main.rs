@@ -4,10 +4,10 @@
 
 extern crate test;
 
-use test::Bencher;
-
+use rand::prelude::*;
 use std::fmt;
 use std::mem;
+use test::Bencher;
 
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
@@ -434,32 +434,38 @@ fn main() {
     println!("{}", bits.is_set(657));
 }
 
+const CAP: usize = 1000000;
+
 #[bench]
 fn bitvec_avx(b: &mut Bencher) {
-    let mut bitvec = BitVec::with_capacity(100000000);
+    let mut bitvec = BitVec::with_capacity(CAP);
+    let mut rng = rand::thread_rng();
 
-    for i in (0..bitvec.capacity()).step_by(2) {
-        bitvec.set_bit(i as usize);
+    for _ in 0..CAP {
+        let y: usize = rng.gen::<usize>() % CAP;
+        bitvec.set_bit(y);
     }
 
     b.iter(|| {
-        for i in 0..bitvec.capacity() {
-            bitvec.is_set(i as usize);
+        for i in 0..CAP {
+            bitvec.is_set(i);
         }
     })
 }
 
 #[bench]
 fn bitvec_scalar(b: &mut Bencher) {
-    let mut bitvec = BitVec::with_capacity(100000000);
+    let mut bitvec = BitVec::with_capacity(CAP);
+    let mut rng = rand::thread_rng();
 
-    for i in (0..bitvec.capacity()).step_by(2) {
-        bitvec.set_bit(i as usize);
+    for _ in 0..CAP {
+        let y: usize = rng.gen::<usize>() % CAP;
+        bitvec.set_bit(y);
     }
 
     b.iter(|| {
-        for i in 0..bitvec.capacity() {
-            bitvec.is_set_scalar(i as usize);
+        for i in 0..CAP {
+            bitvec.is_set_scalar(i);
         }
     })
 }
